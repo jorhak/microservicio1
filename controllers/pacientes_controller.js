@@ -22,6 +22,18 @@ export const getPaciente = async (req,res) => {
     }
 }
 
+export const getPacienteNombre = async (req,res) => {
+    try {
+        const nombreABuscar = req.body.nombre
+        const paciente = await Paciente.findOne({nombre:nombreABuscar})
+        if (!paciente) return res.status(404).json({message: 'Paciente no encontrado'})
+
+        return res.json(paciente?.imagen.secure_url)
+    } catch (error) {
+        return res.status(500).json({message: error.message})
+    }
+}
+
 export const postPaciente = async (req,res) => {
     try {
 
