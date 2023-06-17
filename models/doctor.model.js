@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 
-const pacienteSchema = mongoose.Schema({
+const doctorSchema = mongoose.Schema({
     nombre: {
         type: String,
         required: true,
@@ -23,6 +23,11 @@ const pacienteSchema = mongoose.Schema({
         required: true,
         trim: true
     },
+    especialidad:{
+        type: String,
+        required: true,
+        trim: true
+    },
     imagen: {
         public_id: String,
         secure_url: String
@@ -31,4 +36,4 @@ const pacienteSchema = mongoose.Schema({
     timestamps: true
 }) 
 
-export default mongoose.model('Pacientes',pacienteSchema)
+export default mongoose.model('Doctores',doctorSchema)

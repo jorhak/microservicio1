@@ -15,10 +15,10 @@ const downloadImage = async (url) => {
     }
 };
 
-const pacienteNombre = async (nombreABuscar) => {
+const pacienteUsuario = async (usuarioABuscar) => {
     try {
-        const paciente = await Paciente.findOne({ nombre: nombreABuscar })
-        if (!paciente) return res.status(404).json({ message: 'Paciente no encontrado' })
+        const paciente = await Paciente.findOne({ usuario: usuarioABuscar })
+        if (!paciente) return res.status(404).json({ message: 'Usuario no encontrado' })
 
         return paciente?.imagen.secure_url
     } catch (error) {
@@ -60,8 +60,8 @@ export const login = async (req, res) => {
     try {
         let fuente
         let objetivo
-        const nombreABuscar = req.body.nombre
-        const paciente = await pacienteNombre(nombreABuscar)
+        const usuarioABuscar = req.body.usuario
+        const paciente = await pacienteUsuario(usuarioABuscar)
 
         if (paciente && req.files?.foto) {
             fuente = await fs.readFile(req.files.foto.tempFilePath)

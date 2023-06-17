@@ -22,10 +22,10 @@ export const getPaciente = async (req,res) => {
     }
 }
 
-export const getPacienteNombre = async (req,res) => {
+export const getPacienteUsuario = async (req,res) => {
     try {
-        const nombreABuscar = req.body.nombre
-        const paciente = await Paciente.findOne({nombre:nombreABuscar})
+        const usuarioABuscar = req.body.usuario
+        const paciente = await Paciente.findOne({usuario:usuarioABuscar})
         if (!paciente) return res.status(404).json({message: 'Paciente no encontrado'})
 
         return res.json(paciente?.imagen.secure_url)
@@ -39,11 +39,12 @@ export const postPaciente = async (req,res) => {
 
         console.log(req.files)
 
-        const {nombre, email, contrasena, imagen} = req.body
+        const {nombre, email, usuario, tipo} = req.body
         const paciente = new Paciente({
             nombre,
             email,
-            contrasena,
+            usuario,
+            tipo,
         })
 
         if (req.files?.foto){
