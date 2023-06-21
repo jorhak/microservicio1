@@ -4,6 +4,7 @@ import fs from 'fs-extra'
 import axios from 'axios'
 
 import Paciente from '../models/paciente.model.js'
+import Doctor from '../models/doctor.model.js'
 
 const downloadImage = async (url) => {
     try {
@@ -14,17 +15,6 @@ const downloadImage = async (url) => {
         throw error;
     }
 };
-
-const pacienteUsuario = async (usuarioABuscar) => {
-    try {
-        const paciente = await Paciente.findOne({ usuario: usuarioABuscar })
-        if (!paciente) return res.status(404).json({ message: 'Usuario no encontrado' })
-
-        return paciente?.imagen.secure_url
-    } catch (error) {
-        return res.status(500).json({ message: error.message })
-    }
-}
 
 const compareFaces = async (fuente, objetivo) => {
     const rekognitionClient = new RekognitionClient({
@@ -55,30 +45,53 @@ const compareFaces = async (fuente, objetivo) => {
         console.log('Finalizado')
     }
 }
+const buscarUsuario = async (usuarioABuscar) => {
+    try {
+        const paciente = await Paciente.findOne({ usuario: usuarioABuscar });
+        const doctor = await Doctor.findOne({ usuario: usuarioABuscar });
+
+        if (!paciente && !doctor) {
+            return { error: true, message: 'Usuario no encontrado' };
+        }
+
+        return paciente || doctor;
+    } catch (error) {
+        return { error: true, message: error.message };
+    }
+};
 
 export const login = async (req, res) => {
     try {
-        let fuente
-        let objetivo
-        const usuarioABuscar = req.body.usuario
-        const paciente = await pacienteUsuario(usuarioABuscar)
+        const usuarioABuscar = req.body.usuario;
+        const usuario = await buscarUsuario(usuarioABuscar);
 
-        if (paciente && req.files?.foto) {
-            fuente = await fs.readFile(req.files.foto.tempFilePath)
-            objetivo = await downloadImage(paciente)
+        if (usuario.error) {
+            return res.status(404).json({ message: usuario.message });
         }
 
-        const result = await compareFaces(fuente, objetivo)
-        console.log(result)
-        await fs.unlink(req.files.foto.tempFilePath)
-        if (result.FaceMatches[0]?.Similarity) {
-            return result.FaceMatches[0].Similarity > 98.00 ? res.status(200).json({ message: 'true' }) : res.status(200).json({ message: 'Coincidencia baja' })
+        let fuente;
+        let objetivo;
+
+        if (usuario && req.files?.foto) {
+            fuente = await fs.readFile(req.files.foto.tempFilePath);
+            objetivo = await downloadImage(usuario?.imagen.secure_url);
         } else {
-            return res.status(404).json({ message: 'No hay coinciendecia al comparar los rostros' })
+            return res.status(400).json({ message: 'Usuario no encontrado o falta la foto' });
         }
 
+        const result = await compareFaces(fuente, objetivo);
+        console.log(result);
+        await fs.unlink(req.files.foto.tempFilePath);
+
+        if (result.FaceMatches[0]?.Similarity) {
+            return result.FaceMatches[0].Similarity > 98.00
+                ? res.status(200).json(usuario)
+                : res.status(200).json({ message: 'Coincidencia baja' });
+        }
+
+        return res.status(404).json({ message: 'No hay coincidencia al comparar los rostros' });
     } catch (error) {
-        return res.status(500).json({ message: error.message, aqui: 'aqui esta el errors en el login' })
+        return res.status(500).json({ message: error.message, aqui: 'aqui esta el error en el login' });
     }
-}
+};
 

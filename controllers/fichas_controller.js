@@ -12,7 +12,19 @@ export const getFichas = async (req,res) => {
 export const getFicha = async (req,res) => {
     try {
         const ficha = await Ficha.findById(req.params.id)
-        if (!ficha) return res.status(404).json({message: 'Ficha no existe'})
+        if (!ficha) return res.status(404).json({message: 'Ficha no existe:getFicha'})
+    
+        return res.json(ficha)
+    } catch (error) {
+        return res.status(500).json({message: error.message})
+    }
+}
+
+export const getFichaFecha = async (req,res) => {
+    try {
+        const fechaABuscar = req.body.fecha
+        const ficha = await Ficha.findOne({fecha: fechaABuscar})
+        if (!ficha) return res.status(404).json({message: 'Ficha no existe:getFichaFecha'})
     
         return res.json(ficha)
     } catch (error) {
@@ -25,12 +37,13 @@ export const postFicha = async (req,res) => {
 
         console.log(req.files)
 
-        const {nombrePaciente, nombreDoctor, numero, fecha} = req.body
+        const {nombrePaciente, nombreDoctor, numero, fecha, hora} = req.body
         const ficha = new Ficha({
             nombrePaciente,
             nombreDoctor,
             numero,
             fecha,
+            hora
         })
 
         await ficha.save()
