@@ -23,8 +23,8 @@ export const getFicha = async (req,res) => {
 export const getFichaFecha = async (req,res) => {
     try {
         const fechaABuscar = req.body.fecha
-        const ficha = await Ficha.findOne({fecha: fechaABuscar})
-        if (!ficha) return res.status(404).json({message: 'Ficha no existe:getFichaFecha'})
+        const ficha = await Ficha.find({fecha: fechaABuscar})
+        if (ficha[0] == null) return res.status(404).json({message: 'No se encontraror fichas para la fecha especificada'})
     
         return res.json(ficha)
     } catch (error) {
