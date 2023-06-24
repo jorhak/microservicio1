@@ -27,7 +27,7 @@ services:
 
   microservicio1:
     build:
-      context: ../microServicio2
+      context: ../microservicio1
       dockerfile: Dockerfile
     restart: always
     environment:
