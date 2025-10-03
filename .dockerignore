@@ -1,0 +1,9 @@
+.gitignore
+*.yml
+*.yaml
+Dockerfile*
+docker-compose*.yml
+docker-compose*.yaml
+package-lock.json
+node_modules
+uploads
